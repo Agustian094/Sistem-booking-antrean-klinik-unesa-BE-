@@ -13,32 +13,37 @@ export const app = express();
 app.disable("x-powered-by");
 
 // CORS configuration
+const allowedOrigins = config.FRONTEND_ORIGINS
+  .filter((origin) => origin !== "*")
+  .map((origin) => origin.trim().replace(/\/+$/, ""));
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      // Allow requests without origin (Postman, server-to-server)
+      if (!origin) {
         return callback(null, true);
       }
-      if (config.FRONTEND_ORIGINS.includes("*")) {
-        return callback(null, true);
-      }
+
+      // Allow localhost during development
       if (
-        config.FRONTEND_ORIGINS.some(
-          (allowed) => allowed === origin || allowed === origin.replace(/\/+$/, ""),
-        )
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
       ) {
         return callback(null, true);
       }
-      try {
-        const url = new URL(origin);
-        if (url.hostname.endsWith(".vercel.app")) {
-          return callback(null, true);
-        }
-      } catch {}
-      return callback(null, false);
+
+      // Allow registered frontend domains
+      const normalizedOrigin = origin.replace(/\/+$/, "");
+
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
     },
+
     credentials: true,
+
     methods: [
       "GET",
       "POST",
@@ -47,6 +52,7 @@ app.use(
       "DELETE",
       "OPTIONS",
     ],
+
     allowedHeaders: [
       "Authorization",
       "Content-Type",
