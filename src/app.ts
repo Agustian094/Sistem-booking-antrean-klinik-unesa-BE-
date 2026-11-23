@@ -20,7 +20,7 @@ const allowedOrigins = config.FRONTEND_ORIGINS
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests without origin (Postman, server-to-server)
+      // Allow requests without origin
       if (!origin) {
         return callback(null, true);
       }
