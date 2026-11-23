@@ -7,7 +7,9 @@ const configSchema = z.object({
 
   FRONTEND_ORIGINS: z
     .string()
-    .default("http://localhost:8080"),
+    .default(
+      "http://localhost:8080,https://klinikunesa.com,https://www.klinikunesa.com",
+    ),
 
   SUPABASE_URL: z.string().url(),
   SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
