@@ -20,39 +20,32 @@ const allowedOrigins = config.FRONTEND_ORIGINS
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests without origin
+      console.log("Incoming Origin:", origin);
+      console.log("Allowed Origins:", allowedOrigins);
+
       if (!origin) {
         return callback(null, true);
       }
 
-      // Allow localhost during development
       if (
         /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
       ) {
         return callback(null, true);
       }
 
-      // Allow registered frontend domains
       const normalizedOrigin = origin.replace(/\/+$/, "");
 
       if (allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
 
-      return callback(new Error("Not allowed by CORS"));
+      console.log("CORS REJECTED:", origin);
+
+      return callback(null, false);
     },
 
     credentials: true,
-
-    methods: [
-      "GET",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
-
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Authorization",
       "Content-Type",
